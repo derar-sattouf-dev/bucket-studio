@@ -43,7 +43,7 @@ cd scripts/screenshots && pnpm install && pnpm capture
 - **Error responses never contain exception text**; log details server-side.
 - **Schema change → Alembic revision** (`alembic revision --autogenerate -m "..."` from `backend/`).
 - **Dependencies:** edit `backend/requirements.in`, regenerate `requirements.txt` with the command at its top.
-  torch/torchvision are installed separately (CPU index) and are not in the lock. `numpy<2`. Docker swaps the GUI
+  torch/torchvision are installed separately (CPU index) and are not in the lock. numpy is 2.x (rembg needs it). Docker swaps the GUI
   OpenCV for the headless build.
 - **Tests never download models or hit the network** (guarded by autouse fixtures in `tests/conftest.py`:
   model loading and any real socket connection fail; in-memory S3 in `tests/fakes.py`).

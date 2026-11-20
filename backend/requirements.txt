@@ -153,7 +153,7 @@ numba==0.68.1
     # via
     #   facexlib
     #   pymatting
-numpy==1.26.4
+numpy==2.4.6
     # via
     #   -r requirements.in
     #   basicsr
@@ -186,9 +186,7 @@ opencv-python==4.11.0.86
     #   gfpgan
     #   realesrgan
 opencv-python-headless==4.11.0.86
-    # via
-    #   -r requirements.in
-    #   rembg
+    # via -r requirements.in
 opentelemetry-api==1.45.2
     # via fastapi
 packaging==26.3
@@ -199,7 +197,7 @@ packaging==26.3
     #   pooch
     #   scikit-image
     #   tb-nightly
-pillow==11.3.0
+pillow==13.0.0
     # via
     #   -r requirements.in
     #   basicsr
@@ -266,7 +264,7 @@ referencing==0.37.0
     # via
     #   jsonschema
     #   jsonschema-specifications
-rembg==2.0.69
+rembg==2.0.87
     # via -r requirements.in
 requests==2.34.2
     # via

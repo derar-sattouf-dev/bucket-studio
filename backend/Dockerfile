@@ -29,7 +29,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     && pip install -r requirements.txt \
     && pip uninstall -y opencv-python \
     && pip install --force-reinstall --no-deps "$(grep -i '^opencv-python-headless==' requirements.txt)" \
-    && python -c "import cv2, numpy; assert numpy.__version__.startswith('1.'), numpy.__version__"
+    && python -c "import cv2, numpy; assert numpy.__version__.startswith('2.'), numpy.__version__"
 
 # ── App code ──────────────────────────────────────────────────────────────────
 COPY alembic.ini ./

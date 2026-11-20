@@ -19,5 +19,10 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      // Pages load their data with `useEffect(() => void load(), [load])`, where `load` sets a loading
+      // flag before awaiting the request. That is the fetch-on-mount pattern, not a cascading render.
+      'react-hooks/set-state-in-effect': 'off',
+    },
   },
 ])

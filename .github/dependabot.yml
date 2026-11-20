@@ -4,6 +4,12 @@ updates:
     directory: /backend
     schedule: { interval: weekly }
     open-pull-requests-limit: 5
+    ignore:
+      # The AI SDKs change their API between majors; upgrade these by hand, with a key to test against.
+      - dependency-name: openai
+        update-types: ["version-update:semver-major"]
+      - dependency-name: google-genai
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: npm
     directory: /frontend
     schedule: { interval: weekly }
@@ -17,9 +23,13 @@ updates:
   - package-ecosystem: docker
     directories: [/backend, /frontend]
     schedule: { interval: weekly }
+    ignore:
+      # The backend stays on Python 3.11: the pinned torch wheels are built for it.
+      - dependency-name: python
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
   - package-ecosystem: docker-compose
     directory: /
-    schedule: { interval: weekly }
+    schedule: { interval: monthly }
   - package-ecosystem: github-actions
     directory: /
     schedule: { interval: weekly }

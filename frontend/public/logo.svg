@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <title>Bucket Studio</title>
+  <rect width="32" height="32" rx="8" fill="#0B3B37"/>
+  <path d="M6.5 8.5h19l-1.25 4.5H7.75z" fill="#8BE3D7"/>
+  <path d="M8.3 15h15.4l-1.25 4.5H9.55z" fill="#3CC2AF"/>
+  <path d="M10.1 21.5h11.8l-0.95 3.4a1.6 1.6 0 0 1-1.54 1.17h-6.82a1.6 1.6 0 0 1-1.54-1.17z" fill="#FFFFFF"/>
+</svg>

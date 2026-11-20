@@ -1,0 +1,136 @@
+# Bucket Studio
+#
+#   dev  — MinIO + backend (hot reload) + Vite dev server:
+#            docker compose --profile dev up --build
+#   prod — backend + nginx-served frontend against your own S3 bucket:
+#            docker compose --profile prod up -d --build  (build locally)
+#            docker compose --profile prod up -d          (prebuilt GHCR images, once a release exists)
+#
+# Configuration comes from .env (see .env.example). The UI and the API share one origin: the
+# frontend's nginx proxies /api to the backend, which is never published directly in prod.
+# Ports bind to 127.0.0.1 by default; put a TLS reverse proxy in front (see docs/deployment.md).
+
+name: bucket-studio
+
+x-hardening: &hardening
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+services:
+
+  # ── Dev: MinIO (S3-compatible storage) ─────────────────────────────────────
+  # The official minio/minio images are no longer published; Chainguard's build is maintained.
+  minio:
+    <<: *hardening
+    profiles: ["dev"]
+    image: cgr.dev/chainguard/minio:latest@sha256:7618b82bba99aadd77fcf59eb6cfd89b4b8b8e01ac796c474d57a1c1abf17e79
+    command: ["server", "/data", "--console-address", ":9001"]
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY:?set S3_ACCESS_KEY in .env}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY:?set S3_SECRET_KEY in .env}
+    volumes:
+      - minio_data:/data
+
+  # ── Dev: backend (uvicorn --reload, source mounted) ────────────────────────
+  backend-dev:
+    <<: *hardening
+    profiles: ["dev"]
+    build:
+      context: ./backend
+    ports:
+      - "127.0.0.1:8000:8000"
+    env_file:
+      - ./.env
+    environment:
+      S3_ENDPOINT_URL: http://minio:9000
+      # Presigned URLs are opened by your browser, so they must use a host it can reach.
+      S3_PUBLIC_ENDPOINT_URL: http://localhost:9000
+      S3_AUTO_CREATE_BUCKET: "true"
+      API_DOCS_ENABLED: "true"            # Swagger UI at http://localhost:8000/docs (off by default elsewhere)
+    volumes:
+      - sqlite_data:/app/data
+      - models:/models
+      - ./backend/app:/app/app            # hot reload
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--reload-dir", "app"]
+    depends_on:
+      - minio
+
+  # ── Dev: frontend (Vite dev server + HMR) ──────────────────────────────────
+  frontend-dev:
+    <<: *hardening
+    profiles: ["dev"]
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "127.0.0.1:5173:5173"
+    environment:
+      API_PROXY_TARGET: http://backend-dev:8000   # Vite proxies /api here
+    volumes:
+      - ./frontend:/app                   # full source mount for HMR
+      - /app/node_modules                 # keep the container's node_modules
+    depends_on:
+      - backend-dev
+
+  # ── Prod: backend ──────────────────────────────────────────────────────────
+  backend:
+    <<: *hardening
+    profiles: ["prod"]
+    image: ${BACKEND_IMAGE:-ghcr.io/derar-sattouf-dev/bucket-studio-backend:latest}
+    build:
+      context: ./backend
+    restart: unless-stopped
+    # Not published: only reachable from the frontend container on the compose network.
+    expose:
+      - "8000"
+    env_file:
+      - ./.env
+    environment:
+      API_DOCS_ENABLED: ${API_DOCS_ENABLED:-false}
+      # nginx overwrites X-Forwarded-For with the real client IP; the backend is unreachable otherwise.
+      FORWARDED_ALLOW_IPS: "*"
+    volumes:
+      - sqlite_data:/app/data
+      - models:/models
+    tmpfs:
+      - /tmp
+
+  # ── Prod: frontend (static files via unprivileged nginx) ───────────────────
+  frontend:
+    <<: *hardening
+    profiles: ["prod"]
+    image: ${FRONTEND_IMAGE:-ghcr.io/derar-sattouf-dev/bucket-studio-frontend:latest}
+    build:
+      context: ./frontend
+      args:
+        # Build-time API base; empty = same origin at /api. Takes effect only when you build the image.
+        VITE_API_URL: ${VITE_API_URL:-}
+    restart: unless-stopped
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:${HTTP_PORT:-3000}:8080"
+    environment:
+      BACKEND_URL: http://backend:8000
+      CLIENT_MAX_BODY_SIZE: ${CLIENT_MAX_BODY_SIZE:-25m}
+      # CIDR of your reverse proxy, so nginx can read the real client IP from X-Forwarded-For.
+      REAL_IP_FROM: ${REAL_IP_FROM:-127.0.0.1/32}
+      # img-src already allows any https: origin (presigned S3 URLs); add http origins only if needed.
+      CSP_IMG_SRC: ${CSP_IMG_SRC:-}
+      # Extra connect-src origins; only needed when the UI calls an API on another origin.
+      CSP_CONNECT_SRC: ${CSP_CONNECT_SRC:-}
+    depends_on:
+      - backend
+
+volumes:
+  minio_data:
+  sqlite_data:
+  models:

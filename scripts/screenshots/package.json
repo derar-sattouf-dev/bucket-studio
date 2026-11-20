@@ -1,0 +1,12 @@
+{
+  "name": "bucket-studio-screenshots",
+  "private": true,
+  "type": "module",
+  "description": "Captures the README screenshots from a running Bucket Studio instance.",
+  "scripts": {
+    "capture": "node capture.mjs"
+  },
+  "dependencies": {
+    "playwright-core": "1.65.1"
+  }
+}

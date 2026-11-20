@@ -1,0 +1,50 @@
+# Rendered by the nginx image entrypoint (envsubst) at container start.
+# Variables: BACKEND_URL, CLIENT_MAX_BODY_SIZE, REAL_IP_FROM, CSP_CONNECT_SRC, CSP_IMG_SRC.
+
+server_tokens off;
+
+gzip on;
+gzip_types application/json text/plain text/css application/javascript text/xml application/xml image/svg+xml;
+gzip_min_length 1000;
+gzip_comp_level 5;
+
+# Trust X-Forwarded-For only from your own reverse proxy (if any) to learn the real client IP.
+real_ip_header X-Forwarded-For;
+set_real_ip_from ${REAL_IP_FROM};
+
+server {
+    listen 8080;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # ── API (same origin: no CORS, backend never exposed directly) ──────────
+    location /api/ {
+        proxy_pass ${BACKEND_URL}/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        # Overwrite (never append) so clients cannot spoof their IP to the login rate limiter.
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Connection "";
+
+        # Server-Sent Events (progress streams) must not be buffered.
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_read_timeout 1h;
+
+        client_max_body_size ${CLIENT_MAX_BODY_SIZE};
+    }
+
+    location / {
+        include /etc/nginx/conf.d/snippets/security-headers.conf;
+        add_header Cache-Control "no-cache" always;
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Vite emits content-hashed file names under /assets — safe to cache forever.
+    location /assets/ {
+        include /etc/nginx/conf.d/snippets/security-headers.conf;
+        add_header Cache-Control "public, max-age=31536000, immutable" always;
+        try_files $uri =404;
+    }
+}

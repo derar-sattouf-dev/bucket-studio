@@ -1,0 +1,39 @@
+# Direct dependencies. The pinned lock file is requirements.txt — regenerate with:
+#   uv pip compile requirements.in -o requirements.txt --python-version 3.11 \
+#     --python-platform aarch64-manylinux_2_28 \
+#     --no-emit-package torch --no-emit-package torchvision
+# torch/torchvision are installed separately from the CPU-only index (see Dockerfile).
+
+# Web
+fastapi
+uvicorn[standard]
+python-multipart
+pydantic
+pydantic-settings
+httpx
+
+# Auth
+PyJWT
+bcrypt
+
+# Storage
+SQLAlchemy[asyncio]>=2.0.30,<2.1
+aiosqlite
+alembic
+boto3
+APScheduler<4
+
+# Imaging / ML  (onnxruntime 1.18 requires numpy<2)
+numpy<2
+pillow>=11.3,<12
+opencv-python-headless
+rembg>=2.0.57,<2.1
+onnxruntime
+torch==2.6.0
+torchvision==0.21.0
+basicsr
+realesrgan
+
+# AI providers (major versions capped: SDK APIs change between majors)
+openai>=2.24,<3
+google-genai>=1.69,<2

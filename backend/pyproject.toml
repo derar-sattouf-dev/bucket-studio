@@ -1,0 +1,49 @@
+[project]
+name = "bucket-studio"
+version = "0.1.0"
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["app/db/migrations/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "ASYNC", "RUF", "SIM"]
+ignore = [
+    "B008",    # FastAPI's Depends()/Query() in argument defaults is idiomatic
+    "E501",    # line length is handled by `ruff format`; long string literals are fine
+    "S101",    # assert is fine in tests
+    "RUF001", "RUF002", "RUF003",  # unicode box-drawing characters in comments/docstrings
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S104", "S105", "S106"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.mypy]
+python_version = "3.11"
+files = ["app"]
+plugins = ["pydantic.mypy"]
+check_untyped_defs = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+
+# Third-party libraries that ship neither type hints nor stubs. Listed one by one on purpose:
+# a missing import anywhere else is an error.
+[[tool.mypy.overrides]]
+module = [
+    "apscheduler.*",
+    "basicsr.*",
+    "boto3.*",
+    "botocore.*",
+    "realesrgan.*",
+    "rembg.*",
+    "torchvision.*",
+]
+ignore_missing_imports = true

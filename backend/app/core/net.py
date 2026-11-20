@@ -89,7 +89,7 @@ async def _resolve(host: str, port: int) -> list[str]:
         infos = await loop.getaddrinfo(host, port, type=socket.SOCK_STREAM)
     except socket.gaierror as exc:
         raise UnsafeURLError("Host could not be resolved") from exc
-    addresses = list(dict.fromkeys(info[4][0] for info in infos))
+    addresses = list(dict.fromkeys(str(info[4][0]) for info in infos))
     if not addresses:
         raise UnsafeURLError("Host could not be resolved")
     return addresses

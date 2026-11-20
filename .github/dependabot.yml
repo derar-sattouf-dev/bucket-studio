@@ -10,6 +10,12 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: google-genai
         update-types: ["version-update:semver-major"]
+      # OpenCV is used through basicsr/realesrgan, which target the 4.x API.
+      - dependency-name: opencv-python-headless
+        update-types: ["version-update:semver-major"]
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
   - package-ecosystem: npm
     directory: /frontend
     schedule: { interval: weekly }

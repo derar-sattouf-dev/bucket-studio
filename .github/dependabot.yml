@@ -1,28 +1,27 @@
 version: 2
 updates:
+  # Python: only the dev tools. requirements.txt is a platform-specific lock (CPU-only torch) that
+  # Dependabot cannot regenerate correctly; the weekly CI run audits it and it is upgraded by hand.
   - package-ecosystem: pip
     directory: /backend
     schedule: { interval: weekly }
     open-pull-requests-limit: 5
-    ignore:
-      # The AI SDKs change their API between majors; upgrade these by hand, with a key to test against.
-      - dependency-name: openai
-        update-types: ["version-update:semver-major"]
-      - dependency-name: google-genai
-        update-types: ["version-update:semver-major"]
-      # OpenCV is used through basicsr/realesrgan, which target the 4.x API.
-      - dependency-name: opencv-python-headless
-        update-types: ["version-update:semver-major"]
+    allow:
+      - dependency-name: pytest
+      - dependency-name: pytest-asyncio
+      - dependency-name: ruff
+      - dependency-name: mypy
+      - dependency-name: pip-audit
     groups:
-      minor-and-patch:
-        update-types: [minor, patch]
+      dev-tools:
+        patterns: ["*"]
   - package-ecosystem: npm
     directory: /frontend
     schedule: { interval: weekly }
     open-pull-requests-limit: 5
     groups:
-      minor-and-patch:
-        update-types: [minor, patch]
+      frontend:
+        patterns: ["*"]
   - package-ecosystem: npm
     directory: /scripts/screenshots
     schedule: { interval: monthly }
@@ -39,3 +38,6 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule: { interval: weekly }
+    groups:
+      actions:
+        patterns: ["*"]

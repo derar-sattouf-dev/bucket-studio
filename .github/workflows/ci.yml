@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
   pull_request:
+  schedule:
+    - cron: "0 6 * * 1"   # weekly, so new advisories show up even when nothing is pushed
 
 permissions:
   contents: read

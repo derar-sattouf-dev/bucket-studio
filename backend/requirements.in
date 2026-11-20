@@ -35,5 +35,5 @@ basicsr
 realesrgan
 
 # AI providers (major versions capped: SDK APIs change between majors)
-openai>=2.24,<3
+openai>=3.52.0,<4
 google-genai>=1.69,<2

@@ -5,7 +5,8 @@ FROM node:26-alpine AS builder
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
+# Node 25+ no longer ships corepack; it reads the pnpm version from package.json ("packageManager").
+RUN npm install -g corepack@0.36.0 && corepack enable
 
 WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./

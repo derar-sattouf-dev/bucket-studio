@@ -47,7 +47,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ matrix.component }}
           provenance: mode=max
           sbom: true
-      - uses: actions/attest-build-provenance@v2
+      - uses: actions/attest-build-provenance@v4
         with:
           subject-name: ghcr.io/${{ github.repository_owner }}/bucket-studio-${{ matrix.component }}
           subject-digest: ${{ steps.push.outputs.digest }}

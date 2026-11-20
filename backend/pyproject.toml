@@ -14,6 +14,7 @@ ignore = [
     "B008",    # FastAPI's Depends()/Query() in argument defaults is idiomatic
     "E501",    # line length is handled by `ruff format`; long string literals are fine
     "S101",    # assert is fine in tests
+    "UP042",   # `(str, Enum)` stays: StrEnum changes str()/format() of stored status values
     "RUF001", "RUF002", "RUF003",  # unicode box-drawing characters in comments/docstrings
 ]
 

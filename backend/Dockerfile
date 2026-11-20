@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7
-FROM python:3.11-slim
+FROM python:3.15-slim
 
 LABEL org.opencontainers.image.title="Bucket Studio backend" \
       org.opencontainers.image.description="Self-hosted image pipeline for S3 buckets (API + workers)" \

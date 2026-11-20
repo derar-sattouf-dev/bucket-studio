@@ -22,7 +22,7 @@ ENV VITE_API_URL=$VITE_API_URL
 RUN pnpm run build
 
 # ── Stage 2: serve with unprivileged nginx (non-root, port 8080) ──────────────
-FROM nginxinc/nginx-unprivileged:1.28-alpine AS runner
+FROM nginxinc/nginx-unprivileged:1.31-alpine AS runner
 
 LABEL org.opencontainers.image.title="Bucket Studio frontend" \
       org.opencontainers.image.description="Web UI for Bucket Studio, served by unprivileged nginx" \

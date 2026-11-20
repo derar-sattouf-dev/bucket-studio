@@ -17,7 +17,7 @@ PyJWT
 bcrypt
 
 # Storage
-SQLAlchemy[asyncio]>=2.0.30,<2.1
+SQLAlchemy[asyncio]>=2.1.9,<2.2
 aiosqlite
 alembic
 boto3

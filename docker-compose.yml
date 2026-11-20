@@ -30,7 +30,7 @@ services:
   minio:
     <<: *hardening
     profiles: ["dev"]
-    image: cgr.dev/chainguard/minio:latest@sha256:7618b82bba99aadd77fcf59eb6cfd89b4b8b8e01ac796c474d57a1c1abf17e79
+    image: cgr.dev/chainguard/minio:latest@sha256:e9cf6b99c226e9539ed0f14b6f00e37b07da153c7ba1f4f8709c807574b471ec
     command: ["server", "/data", "--console-address", ":9001"]
     ports:
       - "127.0.0.1:9000:9000"

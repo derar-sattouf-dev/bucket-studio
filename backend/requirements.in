@@ -1,8 +1,9 @@
 # Direct dependencies. The pinned lock file is requirements.txt — regenerate with:
 #   uv pip compile requirements.in -o requirements.txt --python-version 3.11 \
-#     --python-platform aarch64-manylinux_2_28 \
-#     --no-emit-package torch --no-emit-package torchvision
-# torch/torchvision are installed separately from the CPU-only index (see Dockerfile).
+#     --python-platform aarch64-manylinux_2_28 --no-emit-package torch \
+#     --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match
+# torch is installed separately from the CPU-only index (see Dockerfile). The lock is resolved against
+# that index too ("+cpu"): the default Linux wheels depend on several GB of CUDA packages.
 
 # Web
 fastapi
@@ -29,10 +30,7 @@ pillow>=13,<14
 opencv-python-headless
 rembg>=2.0.87,<2.1
 onnxruntime
-torch==2.6.0
-torchvision==0.21.0
-basicsr
-realesrgan
+torch==2.15.0+cpu
 
 # AI providers (major versions capped: SDK APIs change between majors)
 openai>=2.24,<3

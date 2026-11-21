@@ -65,8 +65,9 @@ runs one image end to end (download → render → upload → DB status).
   between stages and before uploading. The upload is the commit point, so a cancelled image is never
   marked as processed.
 - Models are downloaded on first use into `MODELS_DIR` (`core/model_store.py`); Real-ESRGAN weights are
-  verified against a SHA-256 checksum before every load. Upscaling is serialized with a lock because the
-  upstream object is not thread-safe.
+  verified against a SHA-256 checksum before every load and read as plain tensors (`weights_only`). The
+  network and its tiled inference live in `core/esrgan.py` (no `basicsr`/`realesrgan` dependency).
+  Upscaling is serialized with a lock: one run already uses every core and about 2 GB.
 
 ## Security model
 

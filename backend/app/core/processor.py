@@ -21,7 +21,7 @@ import threading
 from collections import OrderedDict
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any, TypedDict
 
 import cv2
 import numpy as np
@@ -30,6 +30,9 @@ from PIL import Image, ImageEnhance, ImageFilter
 from app.core import model_store
 from app.core.imaging import CONTENT_TYPES, WHITE, ImageFormat, encode, hex_to_rgb, open_image
 from app.core.preset_config import BackgroundConfig, CanvasConfig, PresetConfig, ResizeConfig
+
+if TYPE_CHECKING:
+    from app.core.esrgan import Upscaler
 
 logger = logging.getLogger(__name__)
 
@@ -193,11 +196,12 @@ def _esrgan_2x(rgb: Image.Image) -> Image.Image:
     if upsampler is None:
         return _lanczos_2x(rgb)
     try:
-        bgr = cv2.cvtColor(np.asarray(rgb), cv2.COLOR_RGB2BGR)
-        # RealESRGANer keeps per-call state on the instance; serialize access.
+        # One inference at a time: each run needs about 2 GB and uses every core already.
         with _esrgan_lock:
-            output_bgr, _ = upsampler.enhance(bgr, outscale=2)
-        return Image.fromarray(cv2.cvtColor(output_bgr, cv2.COLOR_BGR2RGB))
+            upscaled_4x = upsampler.upscale_4x(np.asarray(rgb, dtype=np.uint8))
+        # The network only does 4x; halve its output to get the 2x result.
+        size = (rgb.width * 2, rgb.height * 2)
+        return Image.fromarray(cv2.resize(upscaled_4x, size, interpolation=cv2.INTER_LANCZOS4))
     except Exception as exc:
         logger.warning("ESRGAN upscale failed (%s), falling back to Lanczos", type(exc).__name__)
         return _lanczos_2x(rgb)
@@ -255,37 +259,25 @@ ESRGAN_MAX_INPUT_PIXELS = 1024 * 1024
 
 _esrgan_lock = threading.Lock()
 _esrgan_init_lock = threading.Lock()
-_esrgan_state: dict[str, Any] = {"loaded": False, "upsampler": None}
 
 
-def _load_esrgan() -> Any:
-    # torchvision >= 0.16 removed functional_tensor; basicsr still imports it.
-    import sys
+class _EsrganState(TypedDict):
+    loaded: bool
+    upsampler: Upscaler | None
 
-    if "torchvision.transforms.functional_tensor" not in sys.modules:
-        import torchvision.transforms.functional as functional
 
-        sys.modules["torchvision.transforms.functional_tensor"] = functional
+_esrgan_state: _EsrganState = {"loaded": False, "upsampler": None}
 
-    from basicsr.archs.rrdbnet_arch import RRDBNet
-    from realesrgan import RealESRGANer
+
+def _load_esrgan() -> Upscaler:
+    from app.core.esrgan import load_upscaler  # imports torch: only when upscaling is first used
 
     model_path = model_store.esrgan_weights()
     logger.info("Loading Real-ESRGAN x4plus from %s", model_path)
-    model = RRDBNet(num_in_ch=3, num_out_ch=3, num_feat=64, num_block=23, num_grow_ch=32, scale=4)
-    return RealESRGANer(
-        scale=4,
-        model_path=str(model_path),
-        model=model,
-        tile=ESRGAN_TILE,
-        tile_pad=ESRGAN_TILE_PAD,
-        pre_pad=0,
-        half=False,
-        gpu_id=None,
-    )
+    return load_upscaler(model_path, tile=ESRGAN_TILE, tile_pad=ESRGAN_TILE_PAD)
 
 
-def _get_esrgan() -> Any | None:
+def _get_esrgan() -> Upscaler | None:
     """The shared upsampler, or None if it could not be loaded (attempted once per process)."""
     with _esrgan_init_lock:
         if not _esrgan_state["loaded"]:

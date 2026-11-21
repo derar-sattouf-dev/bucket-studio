@@ -40,11 +40,8 @@ warn_redundant_casts = true
 [[tool.mypy.overrides]]
 module = [
     "apscheduler.*",
-    "basicsr.*",
     "boto3.*",
     "botocore.*",
-    "realesrgan.*",
     "rembg.*",
-    "torchvision.*",
 ]
 ignore_missing_imports = true

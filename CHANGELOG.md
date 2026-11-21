@@ -3,6 +3,15 @@
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and the project uses [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Security
+- PyTorch 2.6.0 → 2.15.0 (CPU), which resolves the open PyTorch advisories (among them CVE-2026-24747,
+  code execution through crafted checkpoint files).
+- Removed `basicsr`, `realesrgan` and `torchvision` (CVE-2024-27763 in `basicsr` has no fixed release).
+  The Real-ESRGAN network and tiled inference are now a small module in the backend with the same output;
+  23 transitive packages leave the lock file and the image.
+
 ## [0.1.0] - 2026-11-20
 
 First public release.

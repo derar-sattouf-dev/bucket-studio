@@ -29,7 +29,7 @@ updates:
     directories: [/backend, /frontend]
     schedule: { interval: weekly }
     ignore:
-      # The backend stays on Python 3.11: the pinned torch wheels are built for it.
+      # The backend stays on Python 3.11: the lock file is resolved for it.
       - dependency-name: python
         update-types: ["version-update:semver-major", "version-update:semver-minor"]
   - package-ecosystem: docker-compose

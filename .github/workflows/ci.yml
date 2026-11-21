@@ -31,7 +31,7 @@ jobs:
             backend/requirements-dev.txt
       - name: Install dependencies
         run: |
-          pip install torch==2.6.0 torchvision==0.21.0 --index-url https://download.pytorch.org/whl/cpu
+          pip install torch==2.15.0 --index-url https://download.pytorch.org/whl/cpu
           pip install -r requirements.txt -r requirements-dev.txt
       - name: Lint
         run: ruff check . && ruff format --check .
@@ -40,10 +40,8 @@ jobs:
       - name: Test
         run: pytest
       - name: Audit dependencies
-        # Audit the installed environment (includes the CPU torch wheels, which are not in the lock).
-        # PYSEC-2026-1215 (basicsr, no fixed release): command injection through SLURM_NODELIST in its
-        # distributed-training launcher, which this project never runs.
-        run: pip-audit --progress-spinner off --ignore-vuln PYSEC-2026-1215
+        # Audit the installed environment (includes the CPU torch wheel, which is not in the lock).
+        run: pip-audit --progress-spinner off
 
   frontend:
     runs-on: ubuntu-latest

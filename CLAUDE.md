@@ -21,7 +21,7 @@ User-facing docs are the source of truth. Keep them in sync when behaviour chang
 ./scripts/seed-demo.sh                                              # sample images via /imports
 
 # backend (backend/, Python 3.11)
-pip install torch==2.6.0 torchvision==0.21.0 --index-url https://download.pytorch.org/whl/cpu
+pip install torch==2.15.0 --index-url https://download.pytorch.org/whl/cpu
 pip install -r requirements.txt -r requirements-dev.txt
 ruff check . && ruff format --check . && mypy app && pytest
 
@@ -43,8 +43,7 @@ cd scripts/screenshots && pnpm install && pnpm capture
 - **Error responses never contain exception text**; log details server-side.
 - **Schema change → Alembic revision** (`alembic revision --autogenerate -m "..."` from `backend/`).
 - **Dependencies:** edit `backend/requirements.in`, regenerate `requirements.txt` with the command at its top.
-  torch/torchvision are installed separately (CPU index) and are not in the lock. numpy is 2.x (rembg needs it). Docker swaps the GUI
-  OpenCV for the headless build.
+  torch is installed separately (CPU index) and is not in the lock. numpy is 2.x (rembg needs it).
 - **Tests never download models or hit the network** (guarded by autouse fixtures in `tests/conftest.py`:
   model loading and any real socket connection fail; in-memory S3 in `tests/fakes.py`).
 - **`app/` type-checks with mypy** (config in `backend/pyproject.toml`). Prefer real types over

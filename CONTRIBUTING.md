@@ -22,7 +22,7 @@ Backend (Python 3.11, from `backend/`):
 
 ```sh
 python -m venv .venv && source .venv/bin/activate
-pip install torch==2.6.0 torchvision==0.21.0 --index-url https://download.pytorch.org/whl/cpu
+pip install torch==2.15.0 --index-url https://download.pytorch.org/whl/cpu
 pip install -r requirements.txt -r requirements-dev.txt
 ruff check . && ruff format --check . && mypy app && pytest
 ```

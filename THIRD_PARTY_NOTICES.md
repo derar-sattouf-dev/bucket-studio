@@ -13,12 +13,15 @@ downloaded from their upstream sources on first use.
 | IS-Net (`isnet-general-use`) | Background removal (optional) | [xuebinqin/DIS](https://github.com/xuebinqin/DIS) | Apache-2.0 |
 | Real-ESRGAN x4plus | Upscaling | [xinntao/Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN) | BSD-3-Clause |
 
+`backend/app/core/esrgan.py` reimplements the RRDBNet generator after
+[BasicSR](https://github.com/XPixelGroup/BasicSR) (Apache-2.0) and the tiled inference after
+[Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN) (BSD-3-Clause); neither package is a dependency.
+
 ## Key libraries
 
 | Library | License |
 |---|---|
 | [rembg](https://github.com/danielgatis/rembg) | MIT |
-| [BasicSR](https://github.com/XPixelGroup/BasicSR) | Apache-2.0 |
 | [ONNX Runtime](https://github.com/microsoft/onnxruntime) | MIT |
 | [PyTorch](https://github.com/pytorch/pytorch) | BSD-3-Clause |
 | [FastAPI](https://github.com/fastapi/fastapi) | MIT |

@@ -20,16 +20,12 @@ RUN useradd --create-home --uid 10001 appuser
 WORKDIR /app
 
 # ── Python deps ───────────────────────────────────────────────────────────────
-# CPU-only torch first (avoids ~2 GB of CUDA wheels), then the lock file.
-# basicsr depends on the GUI build of OpenCV, which needs X11/OpenGL system libraries.
-# A server only needs the headless build, so it replaces the GUI one (same cv2 API).
+# CPU-only torch first (avoids several GB of CUDA wheels), then the lock file.
 COPY requirements.txt .
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install torch==2.6.0 torchvision==0.21.0 --index-url https://download.pytorch.org/whl/cpu \
+    pip install torch==2.15.0 --index-url https://download.pytorch.org/whl/cpu \
     && pip install -r requirements.txt \
-    && pip uninstall -y opencv-python \
-    && pip install --force-reinstall --no-deps "$(grep -i '^opencv-python-headless==' requirements.txt)" \
-    && python -c "import cv2, numpy; assert numpy.__version__.startswith('2.'), numpy.__version__"
+    && python -c "import cv2, numpy, torch; assert numpy.__version__.startswith('2.'), numpy.__version__"
 
 # ── App code ──────────────────────────────────────────────────────────────────
 COPY alembic.ini ./
